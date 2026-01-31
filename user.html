@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart Canteen | Premium V11</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        brand: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 900: '#134e4a' },
+                        accent: { 500: '#f97316', 600: '#ea580c' },
+                        dark: { 800: '#1e293b', 900: '#0f172a' }
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+                        'card': '0 10px 40px -10px rgba(0, 0, 0, 0.08)',
+                        'glow': '0 0 20px rgba(20, 184, 166, 0.3)'
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(100%)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* --- Premium UI Utilities --- */
+        body { -webkit-tap-highlight-color: transparent; }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .view-container {
+            display: none;
+            opacity: 0;
+            transform: scale(0.98);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .view-container.active {
+            display: flex;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* Spinner */
+        .spinner {
+            width: 24px; height: 24px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s ease-in-out infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen w-screen overflow-hidden flex flex-col font-sans selection:bg-brand-500 selection:text-white">
+
+    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3.5 rounded-full shadow-2xl z-[100] transition-all duration-300 transform -translate-y-32 opacity-0 flex items-center gap-3 font-medium text-sm pointer-events-none">
+        <i id="toast-icon" class="ph-fill ph-check-circle text-brand-400 text-lg"></i>
+        <span id="toast-msg">Notification</span>
+    </div>
+
+    <section id="view-landing" class="view-container active h-full w-full flex-col relative bg-white overflow-hidden">
+        
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="absolute -top-20 -right-20 w-[600px] h-[600px] bg-brand-100 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-pulse-slow"></div>
+            <div class="absolute -bottom-20 -left-20 w-[500px] h-[500px] bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-pulse-slow" style="animation-delay: 2s;"></div>
+        </div>
+
+        <div class="relative z-10 flex flex-col h-full items-center justify-center p-6">
+            <div class="text-center mb-12 animate-fade-in-up">
+                <div class="inline-flex items-center justify-center w-24 h-24 bg-white rounded-3xl shadow-glass mb-6 text-brand-600 ring-1 ring-slate-100">
+                    <i class="ph-duotone ph-hamburger text-5xl"></i>
+                </div>
+                <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-3">Smart Canteen</h1>
+                <p class="text-lg text-slate-500 max-w-md mx-auto">Fresh food. Zero wait time. Campus dining reimagined.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl px-4 animate-fade-in-up" style="animation-delay: 0.1s;">
+                <button onclick="router.navigate('view-auth')" class="group relative bg-white p-8 rounded-[2rem] shadow-card border border-slate-100 hover:border-brand-500 hover:shadow-glow transition-all duration-300 text-left overflow-hidden">
+                    <div class="relative z-10">
+                        <span class="inline-block px-3 py-1 bg-brand-50 text-brand-700 text-xs font-bold rounded-full mb-4 uppercase tracking-wider">Student Portal</span>
+                        <h2 class="text-3xl font-bold text-slate-900 mb-2">Order Food</h2>
+                        <p class="text-slate-500 text-sm">Browse menu, order & track status.</p>
+                        <div class="mt-6 flex items-center text-brand-600 font-bold group-hover:translate-x-2 transition-transform">
+                            Login Now <i class="ph-bold ph-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                    <i class="ph-duotone ph-pizza absolute -right-6 -bottom-6 text-9xl text-slate-50 group-hover:text-brand-50 transition-colors duration-500 transform group-hover:scale-110"></i>
+                </button>
+
+                <button onclick="router.navigate('view-admin-login')" class="group relative bg-slate-900 p-8 rounded-[2rem] shadow-xl hover:shadow-2xl transition-all duration-300 text-left overflow-hidden">
+                    <div class="relative z-10">
+                        <span class="inline-block px-3 py-1 bg-slate-800 text-slate-300 text-xs font-bold rounded-full mb-4 uppercase tracking-wider">Staff Only</span>
+                        <h2 class="text-3xl font-bold text-white mb-2">Kitchen Admin</h2>
+                        <p class="text-slate-400 text-sm">Manage menu, stock & orders.</p>
+                        <div class="mt-6 flex items-center text-white font-bold group-hover:translate-x-2 transition-transform">
+                            Access Dashboard <i class="ph-bold ph-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                    <i class="ph-duotone ph-chef-hat absolute -right-6 -bottom-6 text-9xl text-slate-800 group-hover:text-slate-700 transition-colors duration-500 transform group-hover:scale-110"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="view-auth" class="view-container h-full w-full flex-col items-center justify-center p-6 relative">
+        <button onclick="router.navigate('view-landing')" class="absolute top-8 left-8 text-slate-500 hover:text-brand-600 flex items-center gap-2 font-bold transition-colors z-20">
+            <i class="ph-bold ph-arrow-left"></i> Back
+        </button>
+
+        <div class="w-full max-w-md bg-white/80 backdrop-blur-xl p-8 rounded-[2rem] shadow-glass border border-white/50 animate-fade-in-up">
+            <div class="flex bg-slate-100 p-1 rounded-xl mb-8">
+                <button onclick="auth.toggleMode('login')" id="tab-login" class="flex-1 py-3 rounded-lg text-sm font-bold shadow-sm bg-white text-slate-900 transition-all">Log In</button>
+                <button onclick="auth.toggleMode('signup')" id="tab-signup" class="flex-1 py-3 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-700 transition-all">Sign Up</button>
+            </div>
+
+            <div class="mb-8">
+                <h2 id="auth-title" class="text-3xl font-bold text-slate-900">Welcome Back</h2>
+                <p id="auth-subtitle" class="text-slate-500 mt-2">Enter your details to continue.</p>
+            </div>
+
+            <form onsubmit="auth.submit(event)" class="space-y-5">
+                <div id="field-name" class="hidden space-y-1">
+                    <label class="text-xs font-bold text-slate-700 uppercase ml-1">Full Name</label>
+                    <input type="text" id="input-name" class="w-full px-4 py-3.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all" placeholder="John Doe">
+                </div>
+                
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-700 uppercase ml-1">Email Address</label>
+                    <input type="email" id="input-email" class="w-full px-4 py-3.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all" placeholder="student@college.edu" required>
+                </div>
+                
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-700 uppercase ml-1">Password</label>
+                    <input type="password" id="input-pass" class="w-full px-4 py-3.5 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" id="btn-auth-submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-500/20 mt-4 active:scale-95 transition-all transform">
+                    Log In Securely
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <section id="view-menu" class="view-container h-full w-full flex-col bg-slate-50">
+        
+        <nav class="glass-panel sticky top-0 z-40 px-5 py-3 flex items-center justify-between shrink-0 shadow-sm">
+            <div class="flex items-center gap-3" onclick="router.navigate('view-landing')">
+                <div class="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center text-white shadow-md">
+                    <i class="ph-bold ph-hamburger"></i>
+                </div>
+                <h1 class="font-bold text-slate-900 leading-none text-lg hidden md:block">Smart<br><span class="text-brand-600">Canteen</span></h1>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 mx-8">
+                <button onclick="router.navigate('view-menu')" class="text-brand-600 font-bold text-sm bg-brand-50 px-4 py-2 rounded-full">Menu</button>
+                <button onclick="router.navigate('view-history')" class="text-slate-500 hover:text-brand-600 font-bold text-sm transition-colors">History</button>
+                <button onclick="router.navigate('view-profile')" class="text-slate-500 hover:text-brand-600 font-bold text-sm transition-colors">Profile</button>
+            </div>
+
+            <div class="flex-1 max-w-xs mx-4 md:mx-0">
+                <div class="relative">
+                    <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="searchInput" onkeyup="app.filterProducts()" placeholder="Search..." class="w-full pl-9 pr-4 py-2.5 rounded-full bg-slate-100 border-none focus:bg-white focus:ring-2 focus:ring-brand-500 text-sm outline-none transition-all">
+                </div>
+            </div>
+
+            <button onclick="router.toggleCart()" class="relative w-11 h-11 bg-white rounded-full flex items-center justify-center text-slate-700 shadow-sm border border-slate-200 hover:text-brand-600 transition-all ml-3">
+                <i class="ph-fill ph-shopping-cart text-xl"></i>
+                <span id="cart-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-accent-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full scale-0 transition-transform shadow-sm border-2 border-white">0</span>
+            </button>
+        </nav>
+
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 pb-24">
+            <div class="flex gap-3 overflow-x-auto pb-8 hide-scrollbar shrink-0" id="category-container">
+                </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="product-grid">
+                </div>
+        </main>
+
+        <div class="md:hidden glass-panel fixed bottom-0 w-full z-40 px-6 py-3 flex justify-between items-center text-slate-400 border-t border-slate-200">
+            <button onclick="router.navigate('view-menu')" class="flex flex-col items-center gap-1 text-brand-600 transition-colors">
+                <i class="ph-fill ph-house text-2xl"></i>
+                <span class="text-[10px] font-bold">Menu</span>
+            </button>
+            <button onclick="router.navigate('view-history')" class="flex flex-col items-center gap-1 hover:text-brand-600 transition-colors">
+                <i class="ph-bold ph-clock-counter-clockwise text-2xl"></i>
+                <span class="text-[10px] font-bold">History</span>
+            </button>
+            <button onclick="router.navigate('view-profile')" class="flex flex-col items-center gap-1 hover:text-brand-600 transition-colors">
+                <i class="ph-bold ph-user text-2xl"></i>
+                <span class="text-[10px] font-bold">Profile</span>
+            </button>
+        </div>
+    </section>
+
+    <section id="view-payment" class="view-container h-full w-full flex-col bg-slate-50 z-50 fixed inset-0">
+        <nav class="glass-panel sticky top-0 px-4 py-4 flex items-center gap-4">
+            <button onclick="router.navigate('view-menu')" class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm text-slate-600 hover:text-brand-600 transition-colors">
+                <i class="ph-bold ph-arrow-left"></i>
+            </button>
+            <h1 class="font-bold text-lg text-slate-900">Secure Checkout</h1>
+        </nav>
+        
+        <main class="flex-1 p-6 flex flex-col items-center max-w-md mx-auto w-full animate-fade-in-up">
+            <div class="w-full bg-white p-8 rounded-[2rem] shadow-card border border-slate-100 mb-8 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-brand-400 to-brand-600"></div>
+                <p class="text-xs text-slate-400 uppercase font-bold tracking-widest mb-2">Total Payable</p>
+                <div class="text-5xl font-extrabold text-slate-900 tracking-tight">
+                    ₹<span id="pay-total-display">0</span>
+                </div>
+            </div>
+
+            <h3 class="w-full text-left font-bold text-slate-900 mb-4 text-lg">Select Method</h3>
+            <div class="w-full space-y-4 mb-8">
+                <label class="relative flex items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200 cursor-pointer hover:border-brand-500 hover:shadow-md transition-all group">
+                    <input type="radio" name="payment" value="upi" class="peer sr-only" checked>
+                    <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-2xl group-hover:scale-105 transition-transform"><i class="ph-bold ph-qr-code"></i></div>
+                    <div class="flex-1"><div class="font-bold text-slate-900">UPI / QR Code</div><div class="text-xs text-slate-500">GPay, PhonePe, Paytm</div></div>
+                    <div class="w-6 h-6 rounded-full border-2 border-slate-300 peer-checked:border-brand-500 peer-checked:bg-brand-500 transition-all"></div>
+                </label>
+
+                <label class="relative flex items-center gap-4 bg-white p-5 rounded-2xl border border-slate-200 cursor-pointer hover:border-brand-500 hover:shadow-md transition-all group">
+                    <input type="radio" name="payment" value="cash" class="peer sr-only">
+                    <div class="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-2xl group-hover:scale-105 transition-transform"><i class="ph-bold ph-money"></i></div>
+                    <div class="flex-1"><div class="font-bold text-slate-900">Pay at Counter</div><div class="text-xs text-slate-500">Cash Payment</div></div>
+                    <div class="w-6 h-6 rounded-full border-2 border-slate-300 peer-checked:border-brand-500 peer-checked:bg-brand-500 transition-all"></div>
+                </label>
+            </div>
+
+            <button onclick="app.processPayment()" id="btn-pay-confirm" class="mt-auto w-full bg-slate-900 text-white font-bold py-4 rounded-xl shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
+                <span>Confirm & Pay</span> <i class="ph-bold ph-arrow-right"></i>
+            </button>
+        </main>
+    </section>
+
+    <section id="view-tracking" class="view-container h-full w-full flex-col bg-slate-50 fixed inset-0 z-50">
+        <nav class="glass-panel sticky top-0 px-4 py-4 flex items-center justify-between">
+            <h1 class="font-bold text-lg text-slate-900">Live Status</h1>
+            <button onclick="router.navigate('view-menu')" class="text-sm font-bold text-brand-600 px-4 py-1.5 rounded-full bg-brand-50 hover:bg-brand-100 transition-colors">Go Home</button>
+        </nav>
+        
+        <main class="flex-1 flex flex-col items-center p-6 max-w-md mx-auto w-full animate-fade-in-up overflow-y-auto">
+            
+            <div class="bg-white p-8 rounded-3xl shadow-card w-full mb-6 relative overflow-hidden border border-slate-100 text-center">
+                <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-brand-400 to-accent-500"></div>
+                
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Pickup QR</p>
+                <div id="qrcode" class="flex justify-center mb-6"></div>
+                
+                <h1 class="text-5xl font-black text-slate-900 tracking-tighter mb-2" id="track-id">#000</h1>
+                <div class="inline-flex items-center gap-2 bg-green-50 text-green-700 px-4 py-2 rounded-full text-sm font-bold border border-green-100">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Preparing
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 w-full mb-8">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center">
+                    <i class="ph-duotone ph-clock text-3xl text-accent-500 mb-2"></i>
+                    <div class="text-xs text-slate-400 font-bold uppercase">Est. Time</div>
+                    <div class="text-xl font-bold text-slate-900">12 Mins</div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center">
+                    <i class="ph-duotone ph-users-three text-3xl text-brand-500 mb-2"></i>
+                    <div class="text-xs text-slate-400 font-bold uppercase">Queue</div>
+                    <div class="text-xl font-bold text-slate-900">3 Ahead</div>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <section id="view-history" class="view-container h-full w-full flex-col bg-slate-50">
+        <nav class="glass-panel sticky top-0 px-4 py-4 flex items-center justify-between">
+            <h1 class="font-bold text-lg text-slate-900">My Orders</h1>
+            <div class="hidden md:flex gap-4">
+                <button onclick="router.navigate('view-menu')" class="text-sm font-bold text-slate-500 hover:text-brand-600">Menu</button>
+                <button onclick="router.navigate('view-profile')" class="text-sm font-bold text-slate-500 hover:text-brand-600">Profile</button>
+            </div>
+        </nav>
+        <main class="flex-1 p-4 md:p-6 max-w-md mx-auto w-full overflow-y-auto" id="history-list">
+            <div class="text-center text-slate-400 mt-20 flex flex-col items-center">
+                <i class="ph-duotone ph-receipt text-4xl mb-2"></i>
+                <p>No past orders found.</p>
+            </div>
+        </main>
+        <div class="h-16 md:hidden"></div>
+        <div class="md:hidden glass-panel fixed bottom-0 w-full z-40 px-6 py-3 flex justify-between items-center text-slate-400">
+            <button onclick="router.navigate('view-menu')" class="flex flex-col items-center gap-1 hover:text-brand-600"><i class="ph-bold ph-house text-2xl"></i><span class="text-[10px] font-bold">Menu</span></button>
+            <button onclick="router.navigate('view-history')" class="flex flex-col items-center gap-1 text-brand-600"><i class="ph-fill ph-clock-counter-clockwise text-2xl"></i><span class="text-[10px] font-bold">History</span></button>
+            <button onclick="router.navigate('view-profile')" class="flex flex-col items-center gap-1 hover:text-brand-600"><i class="ph-bold ph-user text-2xl"></i><span class="text-[10px] font-bold">Profile</span></button>
+        </div>
+    </section>
+
+    <section id="view-profile" class="view-container h-full w-full flex-col bg-slate-50">
+        <nav class="glass-panel sticky top-0 px-4 py-4 flex items-center justify-between">
+            <h1 class="font-bold text-lg text-slate-900">Profile</h1>
+            <div class="hidden md:flex gap-4">
+                <button onclick="router.navigate('view-menu')" class="text-sm font-bold text-slate-500 hover:text-brand-600">Menu</button>
+                <button onclick="router.navigate('view-history')" class="text-sm font-bold text-slate-500 hover:text-brand-600">History</button>
+            </div>
+        </nav>
+        <main class="flex-1 p-6 flex flex-col items-center max-w-md mx-auto w-full animate-fade-in-up">
+            <div class="w-24 h-24 bg-brand-100 rounded-full flex items-center justify-center text-brand-600 text-4xl mb-4 shadow-inner border-4 border-white">
+                <i class="ph-duotone ph-student"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-900">Student Name</h2>
+            <p class="text-slate-500 mb-8">student@university.edu</p>
+
+            <div class="w-full bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-6">
+                <button onclick="router.navigate('view-history')" class="w-full flex items-center justify-between p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                    <div class="flex items-center gap-3"><i class="ph-bold ph-receipt text-slate-400"></i> <span class="font-bold text-sm">Past Orders</span></div>
+                    <i class="ph-bold ph-caret-right text-slate-300"></i>
+                </button>
+                <div class="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors cursor-pointer">
+                    <div class="flex items-center gap-3"><i class="ph-bold ph-gear text-slate-400"></i> <span class="font-bold text-sm">Account Settings</span></div>
+                    <i class="ph-bold ph-caret-right text-slate-300"></i>
+                </div>
+            </div>
+
+            <button onclick="router.navigate('view-landing')" class="w-full bg-red-50 text-red-600 font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-red-100 transition-colors shadow-sm">
+                <i class="ph-bold ph-sign-out"></i> Logout
+            </button>
+        </main>
+        
+        <div class="md:hidden glass-panel fixed bottom-0 w-full z-40 px-6 py-3 flex justify-between items-center text-slate-400">
+            <button onclick="router.navigate('view-menu')" class="flex flex-col items-center gap-1 hover:text-brand-600"><i class="ph-bold ph-house text-2xl"></i><span class="text-[10px] font-bold">Menu</span></button>
+            <button onclick="router.navigate('view-history')" class="flex flex-col items-center gap-1 hover:text-brand-600"><i class="ph-bold ph-clock-counter-clockwise text-2xl"></i><span class="text-[10px] font-bold">History</span></button>
+            <button onclick="router.navigate('view-profile')" class="flex flex-col items-center gap-1 text-brand-600"><i class="ph-fill ph-user text-2xl"></i><span class="text-[10px] font-bold">Profile</span></button>
+        </div>
+    </section>
+
+    <section id="view-admin" class="view-container h-full w-full flex bg-slate-100">
+        <aside class="hidden md:flex w-64 bg-slate-900 text-white flex-col shrink-0">
+            <div class="h-20 flex items-center px-6 font-bold text-lg border-b border-slate-800 gap-2"><i class="ph-fill ph-circles-four text-brand-500"></i> Admin</div>
+            <nav class="p-4 space-y-2">
+                <button onclick="admin.switchTab('orders')" id="nav-orders" class="w-full flex items-center gap-3 px-4 py-3 bg-brand-600 rounded-xl text-white shadow-lg transition-all"><i class="ph-bold ph-list-dashes"></i> Live Orders</button>
+                <button onclick="admin.switchTab('menu')" id="nav-menu" class="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all"><i class="ph-bold ph-pizza"></i> Manage Menu</button>
+            </nav>
+            <div class="mt-auto p-4 border-t border-slate-800"><button onclick="router.navigate('view-landing')" class="flex items-center gap-2 text-red-400 font-bold text-sm px-4"><i class="ph-bold ph-sign-out"></i> Logout</button></div>
+        </aside>
+
+        <main class="flex-1 flex flex-col h-full overflow-hidden">
+            <header class="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 shrink-0">
+                <h1 class="font-bold text-slate-900 text-lg" id="admin-header-title">Incoming Orders</h1>
+                <div class="flex items-center gap-3">
+                    <span class="hidden md:flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-bold border border-green-100"><span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Live</span>
+                    <button onclick="router.navigate('view-landing')" class="md:hidden text-slate-400"><i class="ph-bold ph-sign-out text-xl"></i></button>
+                </div>
+            </header>
+
+            <div id="tab-content-orders" class="flex-1 overflow-y-auto p-4 md:p-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                        <div class="text-xs text-slate-400 uppercase font-bold">Revenue</div>
+                        <div class="text-2xl font-bold text-slate-900">₹4,250</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                        <div class="text-xs text-slate-400 uppercase font-bold">Pending</div>
+                        <div class="text-2xl font-bold text-orange-500">5</div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 text-slate-500 border-b border-slate-100"><tr><th class="p-4">ID</th><th class="p-4">Items</th><th class="p-4">Total</th><th class="p-4">Status</th><th class="p-4 text-right">Action</th></tr></thead>
+                        <tbody id="admin-orders-list"></tbody>
+                    </table>
+                    <div id="admin-no-orders" class="p-12 text-center text-slate-400 hidden"><i class="ph-duotone ph-receipt text-4xl mb-2 opacity-50"></i><p>No active orders.</p></div>
+                </div>
+            </div>
+
+            <div id="tab-content-menu" class="hidden flex-1 overflow-y-auto p-4 md:p-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm mb-8 border border-slate-100">
+                    <h3 class="font-bold text-slate-900 text-lg mb-4 flex items-center gap-2"><i class="ph-fill ph-plus-circle text-brand-600"></i> Add New Item</h3>
+                    <form onsubmit="admin.addItem(event)" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <input type="text" id="new-name" placeholder="Name" class="px-4 py-3 border border-slate-200 rounded-xl focus:border-brand-500 outline-none" required>
+                        <input type="number" id="new-price" placeholder="Price (₹)" class="px-4 py-3 border border-slate-200 rounded-xl focus:border-brand-500 outline-none" required>
+                        <input type="text" id="new-weight" placeholder="Qty (e.g. 200g)" class="px-4 py-3 border border-slate-200 rounded-xl focus:border-brand-500 outline-none" required>
+                        <select id="new-cat" class="px-4 py-3 border border-slate-200 rounded-xl focus:border-brand-500 outline-none bg-white"><option value="meals">Meals</option><option value="snacks">Snacks</option><option value="drinks">Drinks</option></select>
+                        <button type="submit" class="bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition-colors md:col-span-4 lg:col-span-1 shadow-lg">Add Item</button>
+                    </form>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="admin-menu-list"></div>
+            </div>
+        </main>
+    </section>
+
+    <section id="view-admin-login" class="view-container h-full w-full flex-col bg-slate-900 text-white items-center justify-center p-6 relative z-[60]">
+        <button onclick="router.navigate('view-landing')" class="absolute top-8 left-8 text-slate-400 hover:text-white transition-colors"><i class="ph-bold ph-arrow-left text-2xl"></i></button>
+        <div class="max-w-sm w-full animate-fade-in-up">
+            <h1 class="text-2xl font-bold mb-6 text-center">Kitchen Portal</h1>
+            <form onsubmit="admin.login(event)" class="space-y-4">
+                <input type="password" id="admin-pass" placeholder="PIN (1234)" class="w-full bg-slate-800 border border-slate-700 text-white px-4 py-3.5 rounded-xl focus:border-brand-500 outline-none">
+                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg">Authenticate</button>
+            </form>
+        </div>
+    </section>
+
+    <div id="cart-overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60] hidden opacity-0 transition-opacity" onclick="router.toggleCart()"></div>
+    <div id="cart-panel" class="fixed inset-y-0 right-0 w-full md:w-[420px] bg-white shadow-2xl z-[70] transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-6 border-b flex justify-between items-center"><h2 class="font-bold text-xl">Cart</h2><button onclick="router.toggleCart()" class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center hover:bg-slate-200"><i class="ph-bold ph-x"></i></button></div>
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+        <div class="p-6 bg-slate-50 border-t"><div class="flex justify-between mb-4 font-bold text-lg"><span>Total</span><span id="cart-total">₹0</span></div><button onclick="app.checkout()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2">Proceed to Checkout <i class="ph-bold ph-arrow-right"></i></button></div>
+    </div>
+
+    <script>
+        // --- DATA & STATE ---
+        const db = {
+            products: [
+                { id: 1, name: 'Aloo Samosa (2pc)', category: 'snacks', price: 30, weight: '150g', image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300', inStock: true },
+                { id: 2, name: 'Veg Burger', category: 'snacks', price: 65, weight: '200g', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300', inStock: true },
+                { id: 3, name: 'Masala Dosa', category: 'meals', price: 90, weight: '250g', image: 'https://tse1.mm.bing.net/th/id/OIP.KsFRaYUKdmOQrcujptKO7wHaE7?pid=Api&P=0&h=180', inStock: true },
+                { id: 4, name: 'Thali Special', category: 'meals', price: 150, weight: '500g', image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=300', inStock: true },
+                { id: 5, name: 'Cold Coffee', category: 'drinks', price: 70, weight: '300ml', image: 'https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?w=300', inStock: true }
+            ],
+            categories: [{id:'all',name:'All'},{id:'meals',name:'🍛 Meals'},{id:'snacks',name:'🥪 Snacks'},{id:'drinks',name:'🥤 Drinks'}],
+            orders: [], // Shared Order Database
+        };
+
+        const app = {
+            cart: [],
+            currentCategory: 'all',
+            init() { this.renderCategories(); this.renderProducts(); },
+            
+            // Render Logic
+            renderCategories() {
+                document.getElementById('category-container').innerHTML = db.categories.map((c,i) => 
+                    `<button onclick="app.setCategory('${c.id}')" class="px-6 py-2 rounded-full font-bold whitespace-nowrap transition-all ${i===0 ? 'bg-brand-600 text-white shadow-md' : 'bg-white border border-slate-200 text-slate-500'} cat-btn" data-id="${c.id}">${c.name}</button>`
+                ).join('');
+            },
+            setCategory(id) {
+                this.currentCategory = id;
+                document.querySelectorAll('.cat-btn').forEach(b => b.className = b.dataset.id===id ? 'cat-btn px-6 py-2 rounded-full font-bold whitespace-nowrap bg-brand-600 text-white shadow-md' : 'cat-btn px-6 py-2 rounded-full font-bold whitespace-nowrap bg-white border border-slate-200 text-slate-500');
+                this.renderProducts();
+            },
+            filterProducts() {
+                const term = document.getElementById('searchInput').value.toLowerCase();
+                const filtered = db.products.filter(p => (this.currentCategory==='all' || p.category===this.currentCategory) && p.name.toLowerCase().includes(term));
+                this.renderProducts(filtered);
+            },
+            renderProducts(list=db.products) {
+                const filtered = this.currentCategory === 'all' ? list : list.filter(p => p.category === this.currentCategory);
+                document.getElementById('product-grid').innerHTML = filtered.map(p => `
+                    <div class="group bg-white rounded-3xl p-3 pb-4 shadow-card hover:shadow-xl transition-all border border-slate-100 flex flex-col overflow-hidden ${!p.inStock ? 'opacity-60 grayscale' : ''}">
+                        <div class="relative h-44 rounded-2xl overflow-hidden mb-3 bg-slate-100">
+                            <img src="${p.image}" class="w-full h-full object-cover">
+                            ${!p.inStock ? '<div class="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-bold backdrop-blur-sm">OUT OF STOCK</div>' : `<div class="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded-lg backdrop-blur-md">${p.weight}</div>`}
+                        </div>
+                        <div class="px-2 flex-1"><h3 class="font-bold text-slate-900 text-lg leading-tight mb-1">${p.name}</h3></div>
+                        <div class="px-2 mt-2 flex justify-between items-center">
+                            <span class="text-xl font-extrabold text-brand-600">₹${p.price}</span>
+                            <button onclick="app.addToCart(${p.id})" ${!p.inStock ? 'disabled' : ''} class="w-10 h-10 rounded-full bg-slate-100 hover:bg-brand-600 hover:text-white flex items-center justify-center transition-all"><i class="ph-bold ph-plus"></i></button>
+                        </div>
+                    </div>
+                `).join('');
+            },
+            addToCart(id) {
+                const p = db.products.find(x => x.id === id);
+                if (!p.inStock) return toast.show('Item Out of Stock', 'error');
+                const item = this.cart.find(x => x.id === id);
+                if(item) item.qty++; else this.cart.push({...p, qty:1});
+                this.updateCartUI();
+                toast.show('Added to cart');
+            },
+            updateCartUI() {
+                const count = this.cart.reduce((s,i) => s+i.qty, 0);
+                document.getElementById('cart-badge').innerText = count;
+                document.getElementById('cart-badge').style.transform = count>0?'scale(1)':'scale(0)';
+                document.getElementById('cart-total').innerText = '₹' + this.cart.reduce((s,i)=>s+(i.price*i.qty),0);
+                document.getElementById('cart-items-container').innerHTML = this.cart.map((i,idx) => `
+                    <div class="flex gap-4 items-center bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                        <img src="${i.image}" class="w-14 h-14 rounded-xl object-cover">
+                        <div class="flex-1"><h3 class="font-bold text-sm">${i.name}</h3><div class="text-brand-600 font-bold">₹${i.price*i.qty}</div></div>
+                        <div class="flex items-center bg-white border rounded-xl"><button onclick="app.modQty(${idx},-1)" class="w-8 h-8">-</button><span class="text-xs font-bold w-4 text-center">${i.qty}</span><button onclick="app.modQty(${idx},1)" class="w-8 h-8">+</button></div>
+                    </div>
+                `).join('');
+            },
+            modQty(idx,d) { this.cart[idx].qty += d; if(this.cart[idx].qty<=0) this.cart.splice(idx,1); this.updateCartUI(); },
+            checkout() { if(this.cart.length===0) return toast.show('Cart empty','error'); router.toggleCart(); document.getElementById('pay-total-display').innerText = this.cart.reduce((s,i)=>s+(i.price*i.qty),0); router.navigate('view-payment'); },
+            processPayment() {
+                const btn = document.getElementById('btn-pay-confirm'); btn.innerHTML = `<div class="spinner"></div>`;
+                setTimeout(() => {
+                    const oid = '#ORD'+Math.floor(1000+Math.random()*9000);
+                    const total = this.cart.reduce((s,i)=>s+(i.price*i.qty),0);
+                    const order = { id: oid, items: [...this.cart], total: total, status: 'Preparing', date: new Date().toLocaleDateString() };
+                    db.orders.unshift(order);
+                    
+                    // Generate QR
+                    document.getElementById('qrcode').innerHTML = '';
+                    new QRCode(document.getElementById("qrcode"), { text: oid, width: 120, height: 120 });
+                    document.getElementById('track-id').innerText = oid;
+                    
+                    this.cart = []; this.updateCartUI(); btn.innerHTML = `<span>Confirm & Pay</span> <i class="ph-bold ph-arrow-right"></i>`;
+                    router.navigate('view-tracking');
+                }, 1500);
+            },
+            renderHistory() {
+                const list = document.getElementById('history-list');
+                if(db.orders.length === 0) { list.innerHTML = '<div class="text-center text-slate-400 mt-20 flex flex-col items-center"><i class="ph-duotone ph-receipt text-4xl mb-2"></i><p>No past orders found.</p></div>'; return; }
+                list.innerHTML = db.orders.map(o => `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-4 animate-fade-in-up">
+                        <div class="flex justify-between items-center mb-2"><span class="font-bold text-slate-900">${o.id}</span><span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold">${o.status}</span></div>
+                        <div class="text-xs text-slate-500 mb-2">${o.items.map(i=>`${i.qty}x ${i.name}`).join(', ')}</div>
+                        <div class="flex justify-between items-center border-t border-slate-50 pt-2"><span class="text-xs text-slate-400">${o.date}</span><span class="font-bold text-brand-600">₹${o.total}</span></div>
+                    </div>
+                `).join('');
+            }
+        };
+
+        const admin = {
+            login(e) { e.preventDefault(); if(document.getElementById('admin-pass').value==='1234') { router.navigate('view-admin'); this.renderOrders(); this.renderMenu(); } else toast.show('Wrong PIN','error'); },
+            switchTab(t) { 
+                document.getElementById('tab-content-orders').style.display = t==='orders'?'block':'none';
+                document.getElementById('tab-content-menu').style.display = t==='menu'?'block':'none';
+                
+                // Styling
+                const btnO = document.getElementById('nav-orders'); const btnM = document.getElementById('nav-menu');
+                if(t==='orders') { 
+                    btnO.className='w-full flex items-center gap-3 px-4 py-3 bg-brand-600 rounded-xl text-white shadow-lg'; 
+                    btnM.className='w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl';
+                    this.renderOrders();
+                } else { 
+                    btnM.className='w-full flex items-center gap-3 px-4 py-3 bg-brand-600 rounded-xl text-white shadow-lg'; 
+                    btnO.className='w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl';
+                    this.renderMenu();
+                }
+            },
+            renderOrders() {
+                const list = document.getElementById('admin-orders-list');
+                if(db.orders.length === 0) { list.innerHTML = ''; document.getElementById('admin-no-orders').style.display='block'; }
+                else {
+                    document.getElementById('admin-no-orders').style.display='none';
+                    list.innerHTML = db.orders.map(o => `
+                        <tr class="border-b border-slate-100 hover:bg-slate-50"><td class="p-4 font-mono font-bold">${o.id}</td><td class="p-4 text-xs">${o.items.map(i=>`${i.qty}x ${i.name}`).join(', ')}</td><td class="p-4 font-bold">₹${o.total}</td><td class="p-4"><button class="bg-slate-900 text-white text-xs px-2 py-1 rounded">Ready</button></td></tr>
+                    `).join('');
+                }
+            },
+            renderMenu() {
+                document.getElementById('admin-menu-list').innerHTML = db.products.map(p => `
+                    <div class="flex items-center gap-3 bg-white p-3 rounded-2xl border border-slate-100 relative">
+                        <img src="${p.image}" class="w-12 h-12 rounded-xl object-cover">
+                        <div class="flex-1"><div class="font-bold text-sm">${p.name}</div><div class="text-xs text-slate-500">₹${p.price}</div></div>
+                        <button onclick="admin.toggleStock(${p.id})" class="mr-2 text-xs font-bold px-2 py-1 rounded ${p.inStock ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${p.inStock ? 'In Stock' : 'Out'}</button>
+                        <button onclick="admin.deleteItem(${p.id})" class="text-red-500"><i class="ph-bold ph-trash"></i></button>
+                    </div>
+                `).join('');
+            },
+            addItem(e) { e.preventDefault(); db.products.push({ id:Date.now(), name:document.getElementById('new-name').value, price:parseInt(document.getElementById('new-price').value), weight:document.getElementById('new-weight').value, category:document.getElementById('new-cat').value, image:'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300', inStock: true }); toast.show('Added'); e.target.reset(); this.renderMenu(); app.renderProducts(); },
+            deleteItem(id) { if(confirm('Delete?')) { db.products = db.products.filter(p => p.id !== id); this.renderMenu(); app.renderProducts(); toast.show('Deleted'); } },
+            toggleStock(id) { const p = db.products.find(x => x.id === id); p.inStock = !p.inStock; this.renderMenu(); app.renderProducts(); }
+        };
+
+        const auth = { 
+            toggleMode(mode) {
+                const login = document.getElementById('tab-login'); const signup = document.getElementById('tab-signup');
+                if(mode==='signup') { document.getElementById('field-name').style.display='block'; document.getElementById('btn-auth-submit').innerText='Sign Up'; signup.classList.add('shadow-sm','bg-white','text-slate-900'); login.classList.remove('shadow-sm','bg-white','text-slate-900'); }
+                else { document.getElementById('field-name').style.display='none'; document.getElementById('btn-auth-submit').innerText='Log In'; login.classList.add('shadow-sm','bg-white','text-slate-900'); signup.classList.remove('shadow-sm','bg-white','text-slate-900'); }
+            },
+            submit(e) { e.preventDefault(); router.navigate('view-menu'); toast.show('Welcome Back!'); } 
+        };
+        const router = {
+            navigate(id) { 
+                document.querySelectorAll('.view-container').forEach(e => { e.classList.remove('active'); setTimeout(() => { if(!e.classList.contains('active')) e.style.display='none'; }, 300); });
+                const t = document.getElementById(id); t.style.display='flex'; requestAnimationFrame(() => t.classList.add('active'));
+                if(id === 'view-history') app.renderHistory();
+            },
+            toggleCart() { const p = document.getElementById('cart-panel'); const o = document.getElementById('cart-overlay'); if(p.classList.contains('translate-x-full')) { o.classList.remove('hidden'); requestAnimationFrame(() => o.classList.remove('opacity-0')); p.classList.remove('translate-x-full'); } else { o.classList.add('opacity-0'); p.classList.add('translate-x-full'); setTimeout(() => o.classList.add('hidden'), 300); } }
+        };
+        const toast = { show(m,t='s') { const el = document.getElementById('toast'); document.getElementById('toast-msg').innerText=m; el.classList.remove('opacity-0','-translate-y-32'); setTimeout(() => el.classList.add('opacity-0','-translate-y-32'), 3000); } };
+
+        app.init();
+    </script>
+</body>
+</html>
